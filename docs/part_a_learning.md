@@ -20,10 +20,9 @@ parcel never showed up"* the top results include *"I ordered an item, but it has
 
 ### 2. Text embeddings
 
-An embedding model turns a piece of text into a list of numbers, a **vector**. The model is trained so
-that texts with similar meaning get vectors that are close to each other, and texts about unrelated
-things get vectors that are far apart. You can think of every sentence as a point in a space with many
-dimensions, where "close" means "similar meaning".
+Converting text into a vector of numbers (a point in a multi-dimensional space) using a pre-trained
+model. Texts with similar meaning get vectors that are close to each other in that space, while the
+vectors of unrelated texts are far apart.
 
 **In my project:** I use `all-MiniLM-L6-v2`, which turns every sentence into **384 numbers**
 (`semantic_search/embeddings.py`). When the program starts, it embeds all 60 texts once and keeps the
@@ -31,8 +30,8 @@ dimensions, where "close" means "similar meaning".
 so the query and the documents are points in the same space and can be compared.
 
 One thing I learned from the experiments (Part E): the vector captures the **topic** of a sentence very
-well, but small words that flip the meaning (*not*, *off*, *cancel* vs. *upgrade*) change it only a
-little.
+well, but a single word that flips the meaning (*not*, *off*, or *upgrade* instead of *cancel*) changes
+it only a little.
 
 ### 3. Cosine similarity
 
