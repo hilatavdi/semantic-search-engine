@@ -90,5 +90,7 @@ directly. That is why it is more predictable, but it does not understand meaning
 - **Hugging Face model card for `cross-encoder/ms-marco-MiniLM-L-12-v2`**: what the reranker was trained
   on (MS MARCO) and how to use it.
 - **Wikipedia, "Cosine similarity"**: the formula and why it ignores vector length.
-- **AI assistants (Claude and Gemini)**: used to explain and discuss the concepts, help write and review
-  the code, and check the experiment analyses. I reviewed and tested the results myself.
+- **Gemini**: helped me understand the assignment and the concepts, and gave general guidance along
+  the way.
+- **Claude Code** (an AI coding assistant): helped write and review the code, run the experiments,
+  and check the analyses. I reviewed and tested the results myself.
