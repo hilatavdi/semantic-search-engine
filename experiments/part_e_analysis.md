@@ -33,26 +33,32 @@ Reproduce with `python experiments/sentence_pairs.py`. The full output is in
 
 ## Do the results match my expectations?
 
-**Each individual score fell inside its predicted range (9 of 10 pairs). However, the most important
-expectation, the *order* between categories, was wrong.**
+**Partly.** Each individual score fell inside its predicted range (9 of 10 pairs). However, for the
+three required pairs, the expectation that mattered most, the *order*, was wrong.
 
-I expected:
+**The required pairs.** My predicted ranges (0.60-0.80 for the paraphrase, 0.50-0.70 for *upgrade*)
+show that I expected:
 
 > similar meaning **>** same topic / different intent **>** unrelated
 
 The model produced:
 
-> same topic / different intent (0.806) **>** similar meaning (0.648) **>>** unrelated (0.021)
-
-The clearest case is the required pairs themselves:
-- *"cancel my subscription"* vs. *"**upgrade** my subscription"*, which means the opposite: **0.692**
-- *"cancel my subscription"* vs. *"stop my membership"*, which means the same: **0.649**
+> *"cancel"* vs. *"**upgrade**"* (opposite request): **0.692** **>** *"cancel"* vs. *"stop my membership"*
+> (same request): **0.649** **>>** unrelated: **0.019**
 
 **According to the model, the sentence with the opposite request is closer than the one with the same
-request.** This is the reverse of what a search engine should do.
+request.** This is the reverse of what a search engine should do. My ranges were wide enough that both
+scores still fit inside them. In hindsight, the ranges were a weak test; the prediction that actually
+mattered was the **ordering**, and it failed.
 
-My ranges were wide enough that both scores fit inside them. In hindsight, the ranges were a weak test.
-The prediction that actually mattered was the **ordering**, and it failed.
+**The extra pairs.** For the one-word "minimal pairs" (*turn on / turn off*, *received / did not
+receive*) I *did* predict very high scores (0.80-0.95). Part C had already shown that the model mostly
+ignores the direction of an action, so this part was expected. What surprised me was:
+- **The effect is not limited to one-word changes.** *cancel / upgrade* and *return / buy* change the
+  main verb, and they still scored as high as or higher than the paraphrases. *return / buy* (0.812) even
+  went above my predicted range.
+- **It holds on average.** Across all pairs, different-intent pairs average **0.806** and paraphrases
+  **0.648**, so this is a consistent pattern, not one odd pair.
 
 ## Interpretation
 
@@ -71,7 +77,7 @@ Now compare the "similar meaning" pairs, which say the same thing in **different
 
 | Pair | Shared words | Cosine |
 |---|---|---|
-| I want to cancel my subscription. / How do I stop my membership? | only *my* | 0.649 |
+| I want to cancel my subscription. / How do I stop my membership? | only *I*, *my* | 0.649 |
 | My package hasn't arrived yet. / I'm still waiting for my delivery. | only *my* | 0.602 |
 | I forgot my password. / I can't remember my login details. | only *I*, *my* | 0.692 |
 
@@ -91,7 +97,7 @@ is the difference between a happy customer and a complaint.
 
 ### 3. Topic separation is excellent
 
-Unrelated pairs scored about **0.02**, and the closest related pair scored 0.602. That is a gap of almost
+Unrelated pairs scored about **0.02**, while even the lowest-scoring related pair scored 0.602. That is a gap of almost
 0.6 with no overlap. The model is very reliable at deciding whether two texts are about the same
 subject.
 
