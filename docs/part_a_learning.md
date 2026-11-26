@@ -54,32 +54,12 @@ length of the vector does not matter.
 Keyword search checks for a direct match of words. It is very precise for specific terms, codes or
 specific actions, but it misses synonyms and context. Semantic search, on the other hand, understands
 context and synonyms, but it can confuse opposite intents on the same topic (like *"cancel my
-subscription"* vs. *"upgrade my subscription"*).
-
-| | Keyword search | Semantic search |
-|---|---|---|
-| Matches | the same **words** | the same **meaning** |
-| Synonyms (*parcel* / *package*) | missed | found |
-| Different word forms (*login* / *log in*) | missed (without stemming) | found |
-| Ranking when several documents match | weak: many get the same score | graded scores |
-| "No results" | yes, when no word matches | never: it always returns the closest texts |
-| Opposite intent on the same topic | also confused | confused (*cancel* close to *reactivate*) |
-| Explainable? | yes, you can see which words matched | harder: the score comes from the model |
+subscription"* vs. *"upgrade my subscription"*), a problem keyword search does not solve either.
 
 **In my project:** I implemented a basic keyword search (`semantic_search/keyword_search.py`) and ran
 the same queries through both (Part C). Semantic search was clearly better when users phrase things
 differently from the documents. Keyword search was better at keeping exact action words like
 *"turn off"*, which the embedding gives little weight to.
-
-### How the concepts connect
-
-```
-text --(embedding model)--> vector --(cosine similarity with every document)--> scores --(sort)--> top 5
-```
-
-Embeddings turn meaning into numbers, cosine similarity compares those numbers, and semantic search is
-the whole pipeline built from the two. Keyword search skips the embedding step and compares the words
-directly. That is why it is more predictable, but it does not understand meaning.
 
 ## Resources I used
 
