@@ -148,8 +148,10 @@ messages from you"*.
 - **What improved:** in 3 of 8 queries the first relevant result moved up or the opposite-intent result
   moved down (cancel subscription, stop emails, end my plan). Those are exactly the intent problems from
   Part C.
-- **What stayed the same:** 4 of 8 queries. These are mostly cases where plain semantic search was
-  already right (parcel, booking).
+- **What stayed the same (by the two measures):** 4 of 8 queries. Three of them are cases where plain
+  semantic search was already right at #1 (parcel, booking, upgrade). The fourth is *turn off
+  notifications*: the order changed (the *enable alerts* result moved down), but no relevant result
+  exists, before or after.
 - **What got worse:** 1 query (login) got slightly worse ordering.
 - **What it did not fix:** upgrade vs. cancel is still confused. The reranker is a better judge than
   cosine similarity, but it does not truly "understand" opposite actions.
