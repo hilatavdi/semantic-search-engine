@@ -60,7 +60,7 @@ def test_query_is_cleaned_before_embedding():
     assert embedder.calls[-1] == ["cancel"]
 
 
-def test_embedding_failure_during_query_is_reported(engine):
+def test_embedding_failure_during_query_is_reported():
     failing = SemanticSearchEngine(DOCS, FailingEmbedder(BagOfWordsEmbedder(VOCAB)))
     with pytest.raises(EmbeddingError):
         failing.search("cancel")
@@ -112,6 +112,14 @@ def test_keyword_search_with_only_stop_words_returns_nothing():
     assert KeywordSearchEngine(DOCS).search("how can I") == []
 
 
+@pytest.mark.parametrize("k", [0, -1])
+def test_non_positive_k_returns_nothing(engine, k):
+    reranker = FixedScoreReranker({})
+    assert engine.search("cancel", k=k) == []
+    assert KeywordSearchEngine(DOCS).search("cancel", k=k) == []
+    assert RerankingSearchEngine(engine, reranker).search("cancel", k=k) == []
+
+
 # ---------- reranking (Part D) ----------
 
 def make_results(ids):
@@ -136,8 +144,8 @@ def test_rerank_score_count_mismatch_raises():
 
 
 def test_reranking_engine_can_demote_wrong_intent(engine):
-    # Semantic search alone ties "upgrade my subscription" with "cancel concert tickets";
-    # the reranker pushes the opposite-intent result to the bottom.
+    # Semantic search alone ranks "upgrade my subscription" 2nd (cosine 0.5);
+    # the reranker pushes this opposite-intent result to the bottom.
     reranker = FixedScoreReranker({"cancel my subscription": 9.0, "upgrade my subscription": -5.0,
                                    "cancel concert tickets": 1.0})
     results = RerankingSearchEngine(engine, reranker, num_candidates=4).search("cancel subscription", k=4)

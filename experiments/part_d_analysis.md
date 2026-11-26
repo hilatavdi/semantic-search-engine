@@ -1,189 +1,84 @@
 # Part D - Improving Search Quality: Cross-Encoder Reranking
 
-## The problem we are trying to fix
+## The problem
 
-Part C showed that semantic search captures the **topic** of a query much better than its **intent**.
-For example, for *"I want to cancel my subscription"* it ranked *"How do I **reactivate** an expired
-subscription?"* 3rd, with almost the same score as a relevant result. For *"turn off notifications"*,
-its top 2 results were about *receiving* / *enabling* notifications.
+Part C showed that semantic search captures the topic of a query better than its intent. For example,
+*"reactivate an expired subscription"* scored almost as high as a relevant result for *"I want to
+cancel my subscription"*.
 
-## The approach: two-stage search (retrieve, then rerank)
+## The approach
 
-Implemented in `semantic_search/reranker.py` and available as `python main.py --mode rerank`.
+Two-stage search (`semantic_search/reranker.py`, `python main.py --mode rerank`):
+1. Semantic search returns the top **15** candidates (unchanged).
+2. A **cross-encoder** (`cross-encoder/ms-marco-MiniLM-L-12-v2`) scores each (query, candidate) pair,
+   and the top 5 by that score are returned.
 
-1. **Retrieve (unchanged):** the existing semantic search returns the top **15** candidates by cosine
-   similarity.
-2. **Rerank:** a **cross-encoder** model (`cross-encoder/ms-marco-MiniLM-L-12-v2`) scores each
-   (query, candidate) pair. The top 5 by that score are returned.
+**Why a cross-encoder.** The embedding model (a *bi-encoder*) turns each text into a vector
+separately, before any comparison. The shared topic dominates that vector, and one word like *cancel*
+vs. *reactivate* changes it only slightly. A cross-encoder reads the query and the candidate
+**together**, so it can compare the two actions directly. It is slower (one model run per pair), so it
+only scores the top 15. This retrieve-then-rerank pattern is the standard way to use it.
 
-### Why a cross-encoder should help with intent
+**Advantages:**
+- It targets the exact weakness found in Part C.
+- It keeps the strengths of semantic search, because stage 1 is unchanged.
+- It is a small local model: no API key, no cost, deterministic.
 
-| | Bi-encoder (our embedding model) | Cross-encoder (reranker) |
-|---|---|---|
-| Input | one text at a time | query **and** document together |
-| Output | a vector per text, compared with cosine | one relevance score per pair |
-| Sees both texts at once? | No. Each text is squeezed into one vector *before* comparison | Yes. Attention compares words across the two texts |
-| Speed | fast; documents are embedded once in advance | slow; one model run per (query, document) pair at query time |
+**Alternatives I tried first:**
+- **Hybrid** (0.7 x semantic + 0.3 x keyword): almost no effect on intent, and it brought back keyword
+  mistakes.
+- **A cross-encoder trained on duplicate questions** (Quora): poor rankings.
+- **The smaller L-6 version of the chosen model:** similar, but worse on the login query.
 
-The bi-encoder must compress a whole sentence into 384 numbers without knowing what it will be compared
-to. The shared topic ("subscription") dominates that vector, and a single word like *cancel* vs.
-*reactivate* changes it only slightly. The cross-encoder reads *"cancel my subscription"* and
-*"reactivate an expired subscription"* side by side, so it can notice that the actions conflict.
-
-For 60 documents it could score everything, but that would not scale to a real collection, so it only
-scores the top 15 candidates. This retrieve-then-rerank pattern is the standard way cross-encoders are
-used.
-
-### Advantages
-
-- **Targets the exact weakness we found:** it compares the query and each candidate *together*, so it
-  can weigh conflicting actions (*cancel* vs. *reactivate*) instead of only the shared topic.
-- **Adds to semantic search instead of replacing it:** stage 1 is unchanged, so its strengths
-  (synonyms, paraphrases) are kept. The reranker only re-orders the semantic top 15.
-- **Runs locally:** small model (~130 MB), no API key, no cost per query, no data leaves the machine.
-- **Deterministic and reproducible:** the same query always gives the same ranking, which is harder
-  to guarantee with an LLM.
-- **Clearer separation between results:** the best result often stands far above the rest (8.05 vs.
-  1.14), while cosine scores were bunched together (0.688 vs. 0.684).
-- **Easy to swap or turn off:** it is a separate stage (`--mode rerank`) with its own model name
-  (`--reranker`), so a better reranker can be plugged in without touching the rest of the code.
-
-The limitations are discussed after the results, under "Limitations".
-
-### Why this approach and not the others
-
-Before choosing, I tried three alternatives on the same queries and considered a fourth. This was
-exploratory and is not part of the saved results.
-
-- **Hybrid search** (0.7 x semantic + 0.3 x keyword score): almost no change on the intent failures.
-  Keyword overlap does not tell *cancel* from *reactivate* either. It also brought back Part C's
-  keyword mistakes; for example, *"Can I pick **up** my order"* re-entered the top 5 for *"my parcel
-  never showed up"*.
-- **`cross-encoder/quora-distilroberta-base`** (trained to detect duplicate questions): its scores were
-  near 0 for almost everything, and the ranking was poor. For example, *"I forgot my account password"*
-  ranked 2nd for *"stop getting emails from you"*.
-- **`cross-encoder/ms-marco-MiniLM-L-6-v2`**: similar to the L-12 version, but it ranked *"The screen goes
-  blank after I log in"* 2nd for *"I can't log into my account"*. The L-12 version (12 layers instead of 6)
-  handled that query better, so I chose L-12.
-- **An LLM as a judge** (considered, not tried) would probably understand intent best. However, it needs an API key or a much
-  larger local model, adds cost and latency, and its output is harder to reproduce. A cross-encoder is
-  a small local model (~130 MB) that gives deterministic results.
+An LLM judge would probably handle intent best, but it needs an API key, costs money per query, and is
+harder to reproduce, so I did not try it.
 
 ## Results: before vs. after
 
-The full tables are in [`part_d_results.md`](part_d_results.md), generated by
-`python experiments/rerank_before_after.py`.
+8 queries, with the relevant documents for each written in the script
+(`python experiments/rerank_before_after.py`; full tables in [`part_d_results.md`](part_d_results.md)).
+I wrote these labels after some exploratory runs, so this is a rough check, not a blind test.
 
-For each query I listed which documents are relevant. These labels are my judgement and are written
-in the script. To be transparent: I wrote them before running this script, but after the exploratory
-runs above, so I had already seen some reranked results. They are not fully "blind", which is one more
-reason to treat the numbers as indicative only. Two simple measures:
-
-| Query | First relevant rank (before -> after) | Relevant in top 5 (before -> after) | Effect |
-|---|---|---|---|
-| I want to cancel my subscription | 1 -> 1 | 2 -> 2 | Better order (see below) |
-| stop getting emails from you | **5 -> 1** | 1 -> 1 | **Clearly better** |
-| How do I end my plan? | **3 -> 1** | 2 -> 2 | Better, but not clean |
-| turn off notifications | none -> none | 0 -> 0 | Partly better, still a failure |
-| I can't log into my account | 1 -> 1 | 3 -> 3 | Slightly worse order |
-| my parcel never showed up | 1 -> 1 | 4 -> 4 | No change |
-| cancel my booking | 1 -> 1 | 1 -> 1 | No change |
-| I want to upgrade my subscription | 1 -> 1 | 1 -> 1 | No change (the problem remains) |
-
-### Example 1: `"I want to cancel my subscription"` (the opposite intent moves to the bottom)
-
-| # | Before (semantic) | cosine | After (reranked) | cross-enc. |
-|---|---|---|---|---|
-| 1 | I want to cancel my monthly subscription. ✅ | 0.941 | I want to cancel my monthly subscription. ✅ | 8.05 |
-| 2 | My subscription renewed even though I asked to end it. ✅ | 0.688 | I want to pause my membership for two months. | 1.14 |
-| 3 | How do I **reactivate** an expired subscription? ❌ | **0.684** | My subscription renewed even though I asked to end it. ✅ | -0.62 |
-| 4 | I want to pause my membership for two months. | 0.628 | I want to permanently delete my user account. | -1.44 |
-| 5 | How can I cancel **concert tickets** I already booked? | 0.581 | How do I **reactivate** an expired subscription? ❌ | **-4.55** |
-
-- The opposite-intent result (*reactivate*) dropped from #3 to #5. Its score went from almost tied with a
-  relevant result (0.684 vs. 0.688) to clearly the lowest.
-- The off-topic concert tickets left the top 5.
-- *Pause* moved up to #2. It is not exactly "cancel", but it is a close alternative a support agent might
-  offer, so I consider it a reasonable result.
-- The cross-encoder is much more decisive: 8.05 for the right answer vs. at most 1.14 for everything
-  else. With cosine the gap was 0.941 vs. 0.688.
-- The count of judged-relevant results did not change (2 -> 2). The improvement is in **which**
-  irrelevant results remain and **how far down** they are, which the simple counts do not capture.
-
-### Example 2: `"stop getting emails from you"` (the right answer goes from #5 to #1)
-
-| # | Before (semantic) | After (reranked) |
+| Query | First relevant result (before -> after) | Effect |
 |---|---|---|
-| 1 | How do I change the **email** address linked to my account? | I want to **stop receiving** course recommendations. ✅ |
-| 2 | I am not receiving notifications on my phone. | How do I change the email address linked to my account? |
-| 3 | I want to cancel my monthly subscription. | How can I stop recurring charges for this service? |
-| 4 | How can I stop recurring charges for this service? | I am not receiving notifications on my phone. |
-| 5 | I want to **stop receiving** course recommendations. ✅ | My account was locked after several login attempts. |
+| stop getting emails from you | #5 -> **#1** | clearly better |
+| How do I end my plan? | #3 -> **#1** | better |
+| I want to cancel my subscription | #1 -> #1 | better order below #1 (see example) |
+| I can't log into my account | #1 -> #1 | slightly worse: a relevant result dropped from #3 to #5 |
+| I want to upgrade my subscription | #1 -> #1 | not fixed: *cancel* is still #2 |
+| my parcel never showed up / cancel my booking (2 queries) | #1 -> #1 | no change |
+| turn off notifications | not in top 5 -> not in top 5 | no fix: the only partly relevant document (*"stop receiving course recommendations"*) stays out of the top 5 |
 
-The bi-encoder matched the topic word *email*. The cross-encoder matched the intent *"stop receiving
-messages from you"*.
+**Example: "I want to cancel my subscription"**
 
-### Example 3: `"How do I end my plan?"` (better, but not clean)
+| # | Before (cosine) | After (cross-encoder score) |
+|---|---|---|
+| 1 | cancel my monthly subscription (0.941) | cancel my monthly subscription (8.05) |
+| 2 | renewed even though I asked to end it (0.688) | pause my membership (1.14) |
+| 3 | **reactivate** an expired subscription (0.684) | renewed even though I asked to end it (-0.62) |
+| 4 | pause my membership (0.628) | permanently delete my user account (-1.44) |
+| 5 | cancel concert tickets (0.581) | **reactivate** an expired subscription (-4.55) |
 
-- Before: #1 *"switch to a cheaper plan"* (wrong intent), #2 concert tickets (wrong topic), and the
-  correct *"cancel my monthly subscription"* only at #3.
-- After: #1 *"My subscription renewed even though I asked to **end** it"* (relevant), and the concert
-  tickets are gone.
-- However, *"upgrade to the premium plan"* moved **into** the top 5 (#3), and *"cancel my monthly
-  subscription"* dropped to #4.
-- The reranker seems to reward the exact word *end* more than the meaning *cancel*.
+The opposite intent (*reactivate*) dropped from #3 to #5 and got the lowest score. The unrelated
+concert tickets left the top 5.
 
-### Where it did not help, or made things worse
+**Example: "stop getting emails from you"**. Before, the #1 result was *"How do I change the **email**
+address..."*, a topic match, and the right answer, *"I want to **stop receiving** course
+recommendations"*, was only #5. After reranking, it moved to #1. It is the only document with the
+same intent.
 
-- **`"turn off notifications"`:** *"How do I **enable** alerts"* dropped from #2 to #3, with a much lower
-  score (-9.97 vs. -3.51 for #1). The new #1 is *"How can I **turn off** two-factor authentication?"*,
-  which has the right action but the wrong object. No result is actually relevant, before or after.
-  Reranking cannot invent a good answer the dataset does not have.
-- **`"I want to upgrade my subscription"`:** *"I want to **cancel** my monthly subscription"* is still #2
-  after reranking. The opposite intent was **not** pushed down here, so the fix is not reliable.
-- **`"I can't log into my account"`:** the top 2 are still relevant, but *"transfer my subscription to
-  another account"* (irrelevant) moved into #3. *"I forgot my account password"* (relevant) dropped
-  from #3 to #5. This is a small regression.
+## Did it improve the results?
 
-## Did it actually improve the results?
+**Partly.** It helped in 3 of 8 queries, all of them the kind of intent problem found in Part C.
+4 queries stayed about the same, and 1 got slightly worse. It did **not** fix *upgrade* vs. *cancel*.
+The reranker was trained on MS MARCO (web questions and the passages that answer them), so it judges whether a text
+is *about* the query, not whether it is the *same request*. Part E confirms this.
 
-**Partly. It is a real but modest improvement, not a solution.**
+## Limitations
 
-- **What improved:** in 3 of 8 queries the first relevant result moved up or the opposite-intent result
-  moved down (cancel subscription, stop emails, end my plan). Those are exactly the intent problems from
-  Part C.
-- **What stayed the same (by the two measures):** 4 of 8 queries. Three of them are cases where plain
-  semantic search was already right at #1 (parcel, booking, upgrade). The fourth is *turn off
-  notifications*: the order changed (the *enable alerts* result moved down), but no relevant result
-  exists, before or after.
-- **What got worse:** 1 query (login) got slightly worse ordering.
-- **What it did not fix:** upgrade vs. cancel is still confused. The reranker is a better judge than
-  cosine similarity, but it does not truly "understand" opposite actions.
-
-### Why not more?
-
-The reranker was trained on **MS MARCO**, a dataset of web-search questions paired with passages that
-*answer* them. Our task is different: we want a *support request with the same intent*. A model
-trained on our kind of data, or fine-tuned on a few hundred labelled support requests, would probably
-do better.
-
-### Limitations
-
-- **Speed:** about **21 ms** per query for semantic search vs. **~218 ms** with reranking (measured on
-  this laptop, CPU only). That is fine here, but it grows linearly with the number of candidates.
-- **Recall is capped by stage 1:** the reranker can only re-order the 15 candidates it is given. If the
-  right document is not in the semantic top 15, reranking cannot find it.
-- **Scores are not comparable across queries:** the cross-encoder outputs raw logits. One query's best
-  result scored 8.05, while another's scored -8.45 and was still the right answer. The scores show the
-  order within one query, not an absolute "relevant / not relevant" threshold.
-- **The evaluation is small and subjective:** 8 queries with relevance labels that I chose myself. That
-  is enough to see the trend, but not to claim a precise improvement. A proper evaluation would use a
-  larger labelled query set and standard metrics (e.g. MRR, nDCG).
-
-### What I would try next
-
-1. **Fine-tune the cross-encoder** on labelled (request, matching request) pairs from this domain.
-2. **Use an LLM as the reranker** for the top 5 only, with a prompt that explicitly asks whether the
-   requested action matches. Then compare cost and quality against the cross-encoder.
-3. **Return "no good match"** when even the best reranked score is low. That would require calibrating
-   a threshold on labelled data, which we do not have here.
+- It is about 10x slower: about 21 ms per query vs. about 218 ms with reranking, on a laptop CPU.
+- It can only re-order the 15 candidates. If the right document is not among them, reranking cannot
+  find it.
+- The scores are raw logits. They show the order within one query, not an absolute
+  "relevant / not relevant" threshold.
+- The evaluation is small and hand-labelled (only 8 queries).

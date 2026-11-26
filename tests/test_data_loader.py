@@ -52,6 +52,12 @@ def test_invalid_files_raise_clear_error(tmp_path, content, message):
         load_documents(write(tmp_path, content))
 
 
+def test_ids_are_stripped_so_padded_duplicates_are_caught(tmp_path):
+    path = write(tmp_path, json.dumps([{"id": "doc_1", "text": "x"}, {"id": " doc_1 ", "text": "y"}]))
+    with pytest.raises(DataLoadError, match="Duplicate id"):
+        load_documents(path)
+
+
 def test_missing_file_raises(tmp_path):
     with pytest.raises(DataLoadError, match="not found"):
         load_documents(tmp_path / "does_not_exist.json")

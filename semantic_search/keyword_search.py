@@ -26,7 +26,7 @@ is am are was were be been being do does did doing have has had having
 can could would should will shall may might must
 what which who whom how why when where
 not no nor than too very just also even though there here
-want would like need please
+want like need please
 """.split())
 
 
@@ -58,5 +58,5 @@ class KeywordSearchEngine:
         scored.sort(key=lambda pair: -pair[0])
         return [
             SearchResult(rank=r, id=self.documents[i].id, text=self.documents[i].text, score=s)
-            for r, (s, i) in enumerate(scored[:k], start=1)
+            for r, (s, i) in enumerate(scored[:max(k, 0)], start=1)
         ]

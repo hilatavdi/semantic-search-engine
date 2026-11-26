@@ -81,6 +81,8 @@ class RerankingSearchEngine:
 
     def search(self, query: str, k: int = 5) -> list[SearchResult]:
         query = SemanticSearchEngine.validate_query(query)
+        if k <= 0:
+            return []
         candidates = self.semantic.search(query, max(self.num_candidates, k))
         scores = self.reranker.score(query, [c.text for c in candidates])
         return rerank(candidates, scores, k)

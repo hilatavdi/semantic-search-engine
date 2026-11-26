@@ -1,157 +1,61 @@
-# Part E - Experimentation & Analysis: Sentence Pair Similarity
+# Part E - Sentence Pair Similarity
 
 ## Setup
 
-- **Score:** cosine similarity between `all-MiniLM-L6-v2` embeddings. This is the same model and
-  score the search engine uses.
-- **The three required pairs** all share the same first sentence, *"I want to cancel my
-  subscription."* Only the second sentence changes, so the scores can be compared directly.
-- **Extra pairs:** 7 more pairs (2-3 per category) check that the pattern is not a one-off.
-- **Predictions first:** I wrote down a predicted cosine range for every pair **before** running anything.
-  They are committed in `experiments/sentence_pairs.py` in a separate commit before the results, so the
-  Git history shows they were not adjusted afterwards.
-- **Comparison only:** the Part D cross-encoder score is shown next to each pair.
+The cosine similarity of `all-MiniLM-L6-v2` embeddings, the same score the search engine uses
+(`python experiments/sentence_pairs.py`; full output in [`part_e_results.md`](part_e_results.md)).
 
-Reproduce with `python experiments/sentence_pairs.py`. The full output is in
-[`part_e_results.md`](part_e_results.md).
+- The three required pairs share the same first sentence, so only the second sentence changes.
+- I added 7 extra pairs to check that the pattern is not a one-off.
+- I wrote a predicted score range for every pair **before** running anything. The predictions are in a
+  separate, earlier commit than the results.
 
-## Results: the three required pairs
+## Results
 
-| # | Pair type | Sentence B (A = *"I want to cancel my subscription."*) | Predicted | **Cosine** |
-|---|---|---|---|---|
-| 1 | Similar meaning | How do I stop my membership? | 0.60 - 0.80 | **0.649** |
-| 2 | Same topic, different intent | I want to upgrade my subscription. | 0.50 - 0.70 | **0.692** |
-| 3 | Unrelated | I am looking for a short hiking trail suitable for children. | 0.00 - 0.15 | **0.019** |
-
-## Results: all pairs, averaged per category
-
-| Category | Pairs | Mean cosine | Range |
+| Pair type | Sentence B (A = *"I want to cancel my subscription."*) | Predicted | Cosine |
 |---|---|---|---|
-| Similar meaning | 3 | 0.648 | 0.602 - 0.692 |
-| **Same topic, different intent** | 4 | **0.806** | 0.692 - 0.889 |
-| Unrelated | 3 | 0.021 | 0.019 - 0.023 |
+| Similar meaning | How do I stop my membership? | 0.60 - 0.80 | **0.649** |
+| Same topic, different intent | I want to upgrade my subscription. | 0.50 - 0.70 | **0.692** |
+| Unrelated | I am looking for a short hiking trail suitable for children. | 0.00 - 0.15 | **0.019** |
 
-## Do the results match my expectations?
+Averages over all 10 pairs: similar meaning **0.648**, same topic / different intent **0.806**,
+unrelated **0.021**.
 
-**Partly.** Each individual score fell inside its predicted range (9 of 10 pairs). However, for the
-three required pairs, the expectation that mattered most, the *order*, was wrong.
+## Did the results match my expectations?
 
-**The required pairs.** My predicted ranges (0.60-0.80 for the paraphrase, 0.50-0.70 for *upgrade*)
-show that I expected:
+Almost every score fell inside its predicted range. The only exception was *return / buy this
+jacket* (0.812, above my range). The **order** of the required pairs, however, was wrong. I expected the paraphrase to score
+higher than *upgrade*, but the model rated the opposite request (0.692) as closer than the same
+request phrased differently (0.649).
 
-> similar meaning **>** same topic / different intent **>** unrelated
+For the extra pairs where only *not* or *on/off* changes, I did predict very high scores, because Part C
+had already shown this weakness. What surprised me is that swapping the main verb (*cancel/upgrade*,
+*return/buy*) behaves the same way.
 
-The model produced:
-
-> *"cancel"* vs. *"**upgrade**"* (opposite request): **0.692** **>** *"cancel"* vs. *"stop my membership"*
-> (same request): **0.649** **>>** unrelated: **0.019**
-
-**According to the model, the sentence with the opposite request is closer than the one with the same
-request.** This is the reverse of what a search engine should do. My ranges were wide enough that both
-scores still fit inside them. In hindsight, the ranges were a weak test; the prediction that actually
-mattered was the **ordering**, and it failed.
-
-**The extra pairs.** For the pairs where only a small function word flips the meaning (*turn **on** /
-turn **off***, *received / did **not** receive*) I *did* predict very high scores (0.80-0.95). Part C had
-already shown that the model mostly ignores the direction of an action, so this part was expected.
-What surprised me was:
-- **The effect is not limited to negation or on/off.** Swapping the main verb itself (*cancel /
-  upgrade*, *return / buy*) still scored as high as or higher than the paraphrases. *return / buy*
-  (0.812) even went above my predicted range.
-- **It holds on average.** Across all pairs, different-intent pairs average **0.806** and paraphrases
-  **0.648**, so this is a consistent pattern, not one odd pair.
+In hindsight, my ranges were too wide to be a real test. The prediction that mattered was the
+ordering.
 
 ## Interpretation
 
-### 1. The model measures shared wording and topic more than intent
+1. The four different-intent pairs keep the same words and structure and change only the action
+   (*cancel/upgrade*, *return/buy*, *on/off*) or add a negation (*did not*). They scored 0.69-0.89. The
+   paraphrases share almost no words and scored 0.60-0.69. So the model does understand paraphrases,
+   but the topic and sentence structure dominate the vector, and the word that flips the meaning moves
+   it only a little.
+2. Negation is almost invisible: *"I received my refund"* vs. *"I did **not** receive my refund"*
+   scored **0.889**, the highest of all pairs.
+3. Topics are separated very well. Unrelated pairs scored about 0.02, and every related pair scored at
+   least 0.60.
+4. The Part D reranker shows the same bias. It scored *cancel / upgrade* +1.45 but *cancel / stop my
+   membership* -3.16, which explains why reranking did not fix *upgrade my subscription* in Part D.
 
-Look at what each "different intent" pair has in common:
+## Conclusion
 
-| Pair | What is shared | What differs | Cosine |
-|---|---|---|---|
-| I received my refund. / I **did not** receive my refund. | almost every word | one word (*not*) | **0.889** (highest of all pairs) |
-| How do I turn **on** notifications? / How do I turn **off** notifications? | every word but one | *on* / *off* | 0.831 |
-| I want to **return** this jacket. / I want to **buy** this jacket. | structure + object | the verb | 0.812 |
-| I want to **cancel** my subscription. / I want to **upgrade** my subscription. | structure + object | the verb | 0.692 |
+These embeddings tell reliably whether two texts are about the same topic, but they are bad at telling
+whether they ask for the same thing. A score threshold would work for filtering out unrelated texts,
+but it cannot separate a request from its opposite. This is the cause of the failures in Parts C and
+D. Fixing it would need a signal about the relationship between the two sentences, for example
+fine-tuning with *cancel / upgrade* style pairs, a contradiction (NLI) model, or an LLM judge.
 
-Now compare the "similar meaning" pairs, which say the same thing in **different words**:
-
-| Pair | Shared words | Cosine |
-|---|---|---|
-| I want to cancel my subscription. / How do I stop my membership? | only *I*, *my* | 0.649 |
-| My package hasn't arrived yet. / I'm still waiting for my delivery. | only *my* | 0.602 |
-| I forgot my password. / I can't remember my login details. | only *I*, *my* | 0.692 |
-
-The embedding is clearly not pure word-matching. The paraphrases still score around 0.6-0.7 with
-almost no shared words, which is the strength we saw in Part C. However, when two sentences share
-structure and topic, a single word that flips the meaning (*not*, *off*, *upgrade*) moves the vector
-only slightly.
-
-A sentence embedding compresses the whole sentence into one point. The action word is a small part of
-that point, while the topic and the sentence structure make up most of it.
-
-### 2. Negation is almost invisible
-
-*"I received my refund"* vs. *"I did **not** receive my refund"* scored **0.889**, the highest of
-all 10 pairs, even though the two sentences describe opposite situations. For a support system, this
-is the difference between a happy customer and a complaint.
-
-### 3. Topic separation is excellent
-
-Unrelated pairs scored about **0.02**, while even the lowest-scoring related pair scored 0.602. That is a gap of almost
-0.6 with no overlap. The model is very reliable at deciding whether two texts are about the same
-subject.
-
-Note that unrelated sentences score about 0, not negative. With this model, about 0 means "nothing in
-common", so the useful range of scores is roughly 0 to 1.
-
-### 4. The Part D cross-encoder has the same blind spot
-
-| Pair | Cosine | Cross-encoder |
-|---|---|---|
-| cancel / stop my membership (same intent) | 0.649 | **-3.16** |
-| cancel / upgrade (different intent) | 0.692 | **+1.45** |
-| received / did not receive refund | 0.889 | **+6.80** |
-
-The cross-encoder also scores the different-intent pairs **higher** than the paraphrases, and the gap is
-even bigger. This explains a result from Part D: reranking did **not** fix *"upgrade my
-subscription"*, where *"cancel my subscription"* stayed at #2.
-
-The reranker was trained on MS MARCO to judge whether a passage is *about* the query, not whether it
-expresses the *same request*. In Part D it still helped in some cases, probably because
-reading both texts together lets it use more context than a single vector. That is a hypothesis I did
-not test here. On minimal pairs like these, it shows the
-same topic bias as the embedding.
-
-(A caveat: the cross-encoder is not symmetric and was built for query vs. passage, so these scores are
-only a rough comparison.)
-
-## Conclusions
-
-1. **Cosine similarity is a good *topic* filter, but a poor *intent* judge.** A threshold could
-   reliably separate related from unrelated texts (about 0.02 vs. 0.6 and above). No threshold can
-   separate the same intent from a different intent, because different-intent pairs often score
-   **higher**.
-2. **The failures in Parts C and D are explained by this experiment.** *Reactivate* ranked close to
-   *cancel*, and *enable alerts* ranked close to *turn off notifications*. These are not random
-   errors; they follow directly from how the embedding behaves on minimal pairs.
-3. **An absolute score means little on its own.** A paraphrase scored 0.602, while an opposite statement
-   scored 0.889. A high score means "same topic and similar wording", not "same meaning".
-4. **What would fix it:** the signal needs to come from something that models the *relationship*
-   between the two sentences, not just their topic. Options include:
-   - a model trained on contradiction (Natural Language Inference),
-   - an intent classifier trained on labelled support requests,
-   - fine-tuning the embedding model with "hard negative" pairs like *cancel / upgrade*, so it learns
-     to push them apart,
-   - an LLM judge that is explicitly asked whether the requested action matches.
-
-## Limitations of this experiment
-
-- **Only 10 pairs**, and I chose them myself. All four different-intent pairs are minimal pairs (exactly
-  one word changed), which is the hardest case for embeddings. Different-intent pairs with very different wording
-  would probably score lower.
-- **One embedding model.** Larger models may handle negation and opposite actions better. This was not
-  tested here.
-- **Wide prediction ranges** made most individual predictions "correct" by default. In a future
-  experiment I would predict the **ranking** of pairs explicitly, because that is what matters for
-  search.
+Since this is only 10 pairs that I chose, on one model, I treat it as a pattern I observed here rather
+than a general rule.

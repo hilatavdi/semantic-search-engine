@@ -33,6 +33,8 @@ def load_documents(path: str | Path) -> list[Document]:
         raise DataLoadError(f"Invalid JSON in {path.name} (line {e.lineno}, col {e.colno}): {e.msg}") from e
     except UnicodeDecodeError as e:
         raise DataLoadError(f"{path.name} is not valid UTF-8 text") from e
+    except OSError as e:  # e.g. no permission to read the file
+        raise DataLoadError(f"Could not read {path.name}: {e}") from e
 
     if not isinstance(raw, list):
         raise DataLoadError("Expected the JSON root to be a list of entries")
@@ -49,6 +51,7 @@ def load_documents(path: str | Path) -> list[Document]:
         text = entry.get("text")
         if not isinstance(doc_id, str) or not doc_id.strip():
             raise DataLoadError(f"Entry #{i} is missing a non-empty string 'id'")
+        doc_id = doc_id.strip()
         if not isinstance(text, str) or not text.strip():
             raise DataLoadError(f"Entry '{doc_id}' is missing a non-empty string 'text'")
         if doc_id in seen_ids:
