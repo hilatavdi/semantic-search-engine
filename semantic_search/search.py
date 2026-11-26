@@ -10,7 +10,8 @@ from .embeddings import Embedder
 from .ranking import cosine_similarities, normalize_rows, top_k
 
 MAX_QUERY_CHARS = 1000
-_INVISIBLE = dict.fromkeys(map(ord, "﻿​‌‍⁠"), None)
+# Invisible characters that str.strip() keeps: BOM, zero-width space/non-joiner/joiner, word joiner.
+_INVISIBLE = dict.fromkeys([0xFEFF, 0x200B, 0x200C, 0x200D, 0x2060], None)
 
 
 class InvalidQueryError(ValueError):
