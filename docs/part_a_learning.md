@@ -2,7 +2,19 @@
 
 ## The four concepts, and where they appear in my code
 
-### 1. Text embeddings
+### 1. Semantic search
+
+Semantic search finds documents by **meaning**:
+1. Embed all the documents (once) - see *Text embeddings* below.
+2. Embed the user's query with the same model.
+3. Compute the similarity between the query and every document - see *Cosine similarity* below.
+4. Return the documents with the highest similarity.
+
+**In my project:** this is exactly `SemanticSearchEngine.search()` in `semantic_search/search.py`.
+For example, for *"my parcel never showed up"* it returns *"I ordered an item, but it has not arrived
+yet"*, even though the two sentences share no important words.
+
+### 2. Text embeddings
 
 An embedding model turns a piece of text into a list of numbers, a **vector**. The model is trained so
 that texts with similar meaning get vectors that are close to each other, and texts about unrelated
@@ -18,7 +30,7 @@ One thing I learned from the experiments (Part E): the vector captures the **top
 well, but small words that flip the meaning (*not*, *off*, *cancel* vs. *upgrade*) change it only a
 little.
 
-### 2. Cosine similarity
+### 3. Cosine similarity
 
 Cosine similarity measures the **angle** between two vectors, not their length:
 
@@ -38,18 +50,6 @@ cosine is just a dot product, so comparing a query to all 60 documents is a sing
 multiplication. The scores are then sorted and the top 5 are returned (`top_k`). The automated tests
 check the basic cases: the same direction gives 1, perpendicular gives 0, opposite gives -1, and the
 length of the vector does not matter.
-
-### 3. Semantic search
-
-Semantic search finds documents by **meaning**:
-1. Embed all the documents (once).
-2. Embed the user's query with the same model.
-3. Compute the similarity between the query and every document.
-4. Return the documents with the highest similarity.
-
-**In my project:** this is exactly `SemanticSearchEngine.search()` in `semantic_search/search.py`.
-For example, for *"my parcel never showed up"* it returns *"I ordered an item, but it has not arrived
-yet"*, even though the two sentences share no important words.
 
 ### 4. Semantic search vs. keyword search
 
@@ -93,6 +93,4 @@ directly. That is why it is more predictable, but it does not understand meaning
 - **AI assistants:**
   - **Gemini**: helped me understand the assignment and the concepts, and gave general guidance along
     the way.
-  - **Claude Code**: helped write and review the code, run the experiments, and check the analyses.
-
-  I reviewed and tested the results myself.
+  - **Claude Code**: helped write and review the code, run the experiments, and check the analyses. I reviewed and tested the results myself.
