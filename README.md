@@ -45,10 +45,10 @@ pip install -r requirements.txt
 The first run downloads the models from Hugging Face (about 90 MB for the embedding model and about
 130 MB for the reranker). After that they are cached locally, and the program works offline.
 
-> **Windows note:** if `pip install` fails with a "No such file or directory" error inside
-> `site-packages`, the project path is probably too long for Windows (260-character limit). Create the
-> virtual environment in a shorter path, e.g. `python -m venv C:\venvs\semsearch`. See
-> [Challenges](#challenges-and-reflection).
+> **Windows note:** if creating the virtual environment fails with
+> `ModuleNotFoundError: No module named 'pip._internal.utils'`, the project path is probably too long
+> for Windows (260-character limit). Create the virtual environment in a shorter path, e.g.
+> `python -m venv C:\venvs\semsearch`. See [Challenges](#challenges-and-reflection).
 
 ## Running the search engine
 
@@ -242,7 +242,7 @@ reranker* replaces the cross-encoder. They cover:
 | File | What is tested |
 |---|---|
 | `test_ranking.py` | cosine values (same / orthogonal / opposite), length invariance, zero vectors, top-k order, deterministic ties |
-| `test_data_loader.py` | the real dataset loads; 8 kinds of invalid files are rejected with clear messages; BOM files are accepted |
+| `test_data_loader.py` | the real dataset loads; a missing file and 8 kinds of invalid files are rejected with clear messages; BOM files are accepted |
 | `test_search.py` | ranking by similarity; top 5 by default; documents embedded once; empty/invisible/too-long queries rejected; embedding failures (exception, NaN output, wrong shape) reported; keyword scoring; reranking order, ties and errors |
 
 To check that the tests can actually catch bugs, I planted two bugs on purpose: reversing the sort
@@ -255,7 +255,7 @@ once the code was restored.
 |---|---|
 | File missing, invalid JSON, not a list, empty list | clear `[!] Failed to load data: ...` message, exit code 1 |
 | Entry without a non-empty string `id` / `text`, or duplicate `id` | message naming the entry, exit code 1 |
-| File saved with a UTF-8 BOM (common with Windows editors) | accepted |
+| File saved with a UTF-8 BOM (produced by some Windows tools) | accepted |
 | Empty query, whitespace only, or invisible characters only | `[!] Query is empty` message; interactive mode keeps running |
 | Query over 1000 characters | rejected with a message |
 | Model cannot be downloaded / wrong model name | `[!] Could not load embedding model ...` with a hint (internet, model name), no traceback |
@@ -270,7 +270,8 @@ once the code was restored.
 **Problem:** while testing error handling, a query piped from PowerShell arrived with an invisible
 byte-order mark (BOM, `U+FEFF`) at the start. Python's `str.strip()` does not remove it, so a query that
 *looked* empty passed validation and was searched as a real query. The same issue appeared in input
-files: a JSON file saved with a BOM (Notepad does this) was rejected as "invalid JSON".
+files: a JSON file saved with a BOM (some Windows tools do this, e.g. PowerShell's `Out-File -Encoding utf8`)
+was rejected as "invalid JSON".
 
 **How I fixed it:**
 - The loader now reads files with `utf-8-sig`, which accepts an optional BOM.
