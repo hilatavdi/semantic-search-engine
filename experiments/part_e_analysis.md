@@ -51,12 +51,13 @@ request.** This is the reverse of what a search engine should do. My ranges were
 scores still fit inside them. In hindsight, the ranges were a weak test; the prediction that actually
 mattered was the **ordering**, and it failed.
 
-**The extra pairs.** For the one-word "minimal pairs" (*turn on / turn off*, *received / did not
-receive*) I *did* predict very high scores (0.80-0.95). Part C had already shown that the model mostly
-ignores the direction of an action, so this part was expected. What surprised me was:
-- **The effect is not limited to one-word changes.** *cancel / upgrade* and *return / buy* change the
-  main verb, and they still scored as high as or higher than the paraphrases. *return / buy* (0.812) even
-  went above my predicted range.
+**The extra pairs.** For the pairs where only a small function word flips the meaning (*turn **on** /
+turn **off***, *received / did **not** receive*) I *did* predict very high scores (0.80-0.95). Part C had
+already shown that the model mostly ignores the direction of an action, so this part was expected.
+What surprised me was:
+- **The effect is not limited to negation or on/off.** Swapping the main verb itself (*cancel /
+  upgrade*, *return / buy*) still scored as high as or higher than the paraphrases. *return / buy*
+  (0.812) even went above my predicted range.
 - **It holds on average.** Across all pairs, different-intent pairs average **0.806** and paraphrases
   **0.648**, so this is a consistent pattern, not one odd pair.
 
@@ -146,8 +147,8 @@ only a rough comparison.)
 
 ## Limitations of this experiment
 
-- **Only 10 pairs**, and I chose them myself. Most different-intent pairs are minimal pairs (one word
-  changed), which is the hardest case for embeddings. Different-intent pairs with very different wording
+- **Only 10 pairs**, and I chose them myself. All four different-intent pairs are minimal pairs (exactly
+  one word changed), which is the hardest case for embeddings. Different-intent pairs with very different wording
   would probably score lower.
 - **One embedding model.** Larger models may handle negation and opposite actions better. This was not
   tested here.
