@@ -7,7 +7,17 @@ improves relevance, and experiments that analyse where embeddings succeed and fa
 - **Embedding model:** [`sentence-transformers/all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2), run locally
 - **Reranker (Part D):** [`cross-encoder/ms-marco-MiniLM-L-12-v2`](https://huggingface.co/cross-encoder/ms-marco-MiniLM-L-12-v2), run locally
 - **No API keys, no external services.** Everything runs on your machine after a one-time model download.
-- **Part A (concepts and learning resources):** [`docs/part_a_learning.md`](docs/part_a_learning.md)
+
+## Where to find each part of the assignment
+
+| Part | Where |
+|---|---|
+| **A** - Independent learning | [`docs/part_a_learning.md`](docs/part_a_learning.md) |
+| **B** - Semantic search engine | `main.py` + `semantic_search/`. See [Running](#running-the-search-engine), [Sample outputs](#sample-inputs-and-outputs), [Error handling](#error-handling) |
+| **C** - Semantic vs. keyword search | [Analysis](experiments/part_c_analysis.md) · [raw results](experiments/part_c_results.md) · `semantic_search/keyword_search.py` |
+| **D** - Improving search quality (reranking) | [Analysis](experiments/part_d_analysis.md) · [raw results](experiments/part_d_results.md) · `semantic_search/reranker.py` |
+| **E** - Sentence pair experiment | [Analysis](experiments/part_e_analysis.md) · [raw results](experiments/part_e_results.md) |
+| **F** - Tests, README, reflection | `tests/` · [Automated tests](#automated-tests) · [Embedding model choice](#embedding-model-choice-and-reasoning) · [Challenges and reflection](#challenges-and-reflection) |
 
 ---
 

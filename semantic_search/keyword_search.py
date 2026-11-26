@@ -40,11 +40,10 @@ class KeywordSearchEngine:
         if not documents:
             raise ValueError("Cannot build a search engine with no documents")
         self.documents = documents
-        # Pre-compute each document's set of keywords once.
         self._doc_terms = [set(tokenize(d.text)) for d in documents]
 
     def search(self, query: str, k: int = 5) -> list[SearchResult]:
-        query = SemanticSearchEngine.validate_query(query)  # same empty/too-long rules
+        query = SemanticSearchEngine.validate_query(query)
         query_terms = set(tokenize(query))
         if not query_terms:
             return []  # query was only stop words, e.g. "how can I"
@@ -55,7 +54,7 @@ class KeywordSearchEngine:
             if matched:
                 scored.append((matched / len(query_terms), i))
 
-        # Highest score first; ties keep dataset order (stable sort) so output is deterministic.
+        # Stable sort: ties keep dataset order, so the output is deterministic.
         scored.sort(key=lambda pair: -pair[0])
         return [
             SearchResult(rank=r, id=self.documents[i].id, text=self.documents[i].text, score=s)

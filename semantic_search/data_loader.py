@@ -27,7 +27,7 @@ def load_documents(path: str | Path) -> list[Document]:
         raise DataLoadError(f"Input file not found: {path}")
 
     try:
-        # utf-8-sig also accepts files saved with a BOM (common with Windows editors).
+        # utf-8-sig also accepts files saved with a UTF-8 BOM (some Windows tools add one).
         raw = json.loads(path.read_text(encoding="utf-8-sig"))
     except json.JSONDecodeError as e:
         raise DataLoadError(f"Invalid JSON in {path.name} (line {e.lineno}, col {e.colno}): {e.msg}") from e

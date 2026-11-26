@@ -32,14 +32,13 @@ class SemanticSearchEngine:
             raise ValueError("Cannot build a search engine with no documents")
         self.documents = documents
         self.embedder = embedder
-        # Embed the whole collection once, up front, and keep it in memory (normalized).
+        # Embedded once at startup, not per query.
         self._doc_vectors = normalize_rows(embedder.embed([d.text for d in documents]))
 
     @staticmethod
     def validate_query(query: str) -> str:
         if query is None or not isinstance(query, str):
             raise InvalidQueryError("Query must be a string")
-        # Drop invisible characters (BOM, zero-width spaces) that str.strip() keeps.
         query = query.translate(_INVISIBLE).strip()
         if not query:
             raise InvalidQueryError("Query is empty - please type something to search for")
