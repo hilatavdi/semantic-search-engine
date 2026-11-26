@@ -5,9 +5,9 @@
 ### 1. Semantic search
 
 Semantic search finds documents by **meaning**:
-1. Embed all the documents (once) - see *Text embeddings* below.
+1. Embed all the documents (once).
 2. Embed the user's query with the same model.
-3. Compute the similarity between the query and every document - see *Cosine similarity* below.
+3. Compute the similarity between the query and every document.
 4. Return the documents with the highest similarity.
 
 **In my project:** this is exactly `SemanticSearchEngine.search()` in `semantic_search/search.py`.
