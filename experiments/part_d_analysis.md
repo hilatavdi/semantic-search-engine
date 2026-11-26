@@ -33,6 +33,21 @@ to. The shared topic ("subscription") dominates that vector, and a single word l
 Because it is too slow to run on every document, we only use it on the top 15 candidates. This
 retrieve-then-rerank pattern is the standard way cross-encoders are used.
 
+### Advantages
+
+- **Targets the exact weakness we found:** it compares the query and each candidate *together*, so it
+  can weigh conflicting actions (*cancel* vs. *reactivate*) instead of only the shared topic.
+- **Adds to semantic search instead of replacing it:** stage 1 is unchanged, so its strengths
+  (synonyms, paraphrases) are kept. The reranker only re-orders candidates that are already good.
+- **Runs locally:** small model (~130 MB), no API key, no cost per query, no data leaves the machine.
+- **Deterministic and reproducible:** the same query always gives the same ranking, unlike an LLM.
+- **Clearer separation between results:** the best result often stands far above the rest (8.05 vs.
+  1.14), while cosine scores were bunched together (0.688 vs. 0.684).
+- **Easy to swap or turn off:** it is a separate stage (`--mode rerank`) with its own model name
+  (`--reranker`), so a better reranker can be plugged in without touching the rest of the code.
+
+The limitations are discussed after the results, under "Limitations".
+
 ### Why this approach and not the others
 
 Before choosing, I tried three options on the same queries. This was exploratory and not part of the
