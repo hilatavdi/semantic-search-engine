@@ -27,7 +27,8 @@ improves relevance, and experiments that analyse where embeddings succeed and fa
 
 ## Setup
 
-Requires **Python 3.10+**. It was developed and tested with Python 3.12 on Windows 11.
+Tested with **Python 3.12** on Windows 11. Python 3.10 or newer should work, but only 3.12 was
+tested.
 
 ```bash
 git clone https://github.com/hilatavdi/semantic-search-engine.git
