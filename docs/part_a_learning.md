@@ -4,7 +4,7 @@
 
 ### 1. Semantic search
 
-Search that focuses on the **meaning** behind the text rather than on exact word matching. This makes
+Search that focuses on the meaning behind the text rather than on exact word matching. This makes
 it possible to find relevant results even when the user uses synonyms or completely different wording.
 
 How it works:
@@ -13,9 +13,10 @@ How it works:
 3. Compute the similarity between the query and every document.
 4. Return the documents with the highest similarity.
 
-**In my project:** this is exactly `SemanticSearchEngine.search()` in `semantic_search/search.py`.
-For example, for *"my parcel never showed up"* it returns *"I ordered an item, but it has not arrived
-yet"*, even though the two sentences share no important words.
+**In my project:** this is `SemanticSearchEngine` in `semantic_search/search.py`. Step 1 happens once,
+when the engine is created; steps 2-4 happen in `search()` for every query. For example, for *"my
+parcel never showed up"* the top results include *"I ordered an item, but it has not arrived yet"*
+(#2), even though the two sentences share no words at all.
 
 ### 2. Text embeddings
 
