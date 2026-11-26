@@ -35,18 +35,13 @@ it only a little.
 
 ### 3. Cosine similarity
 
-Cosine similarity measures the **angle** between two vectors, not their length:
+A mathematical measure of the angle between two vectors. It ranges from -1 to 1, and for texts it
+usually falls between 0 and 1. Its advantage for texts is that it measures direction (meaning) and
+ignores length, which does not carry the meaning.
 
 ```
 cos(A, B) = (A . B) / (|A| x |B|)
 ```
-
-- 1 = the vectors point in the same direction (very similar meaning)
-- 0 = unrelated
-- -1 = opposite directions (in practice, with this model, unrelated sentences score about 0, not negative)
-
-The angle is used rather than the distance because the direction of the vector carries the meaning,
-while its length mostly does not.
 
 **In my project:** `semantic_search/ranking.py` normalises every vector to length 1. After that, the
 cosine is just a dot product, so comparing a query to all 60 documents is a single matrix
