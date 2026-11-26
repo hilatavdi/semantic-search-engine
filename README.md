@@ -214,6 +214,7 @@ experiments/
     rerank_before_after.py       Part D: before/after rerank  -> part_d_results.md, part_d_analysis.md
     sentence_pairs.py            Part E: sentence pair scores -> part_e_results.md, part_e_analysis.md
 tests/                           42 automated tests (pytest), fake models, no network
+docs/part_a_learning.md          Part A: the concepts, how they relate to the code, learning resources
 data/semantic_search_sample_data_en.json
 ```
 
