@@ -7,6 +7,7 @@ improves relevance, and experiments that analyse where embeddings succeed and fa
 - **Embedding model:** [`sentence-transformers/all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2), run locally
 - **Reranker (Part D):** [`cross-encoder/ms-marco-MiniLM-L-12-v2`](https://huggingface.co/cross-encoder/ms-marco-MiniLM-L-12-v2), run locally
 - **No API keys, no external services.** Everything runs on your machine after a one-time model download.
+- **Part A (concepts and learning resources):** [`docs/part_a_learning.md`](docs/part_a_learning.md)
 
 ---
 
