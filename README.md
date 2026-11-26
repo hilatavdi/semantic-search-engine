@@ -283,14 +283,15 @@ could be silently broken by an editor. I rewrote it as explicit code points
 (`[0xFEFF, 0x200B, ...]`) and scanned every file in the repository for hidden characters.
 
 **Lesson:** text that "looks empty" is not always empty, and code should be readable as well as correct.
-Both points are now covered by tests.
+The BOM file and invisible-character query cases are now covered by automated tests.
 
 ### Challenge 2: Windows path length broke the environment setup
 
 **Problem:** creating the virtual environment inside the project folder failed with
-`ModuleNotFoundError: pip._internal.utils`. The project lived in a deep OneDrive path. Combined with
-pip's own nested folders, file paths went over the 260-character Windows limit, and some files were
-silently not created.
+`ModuleNotFoundError: pip._internal.utils`. The project lived in a deep OneDrive path. My diagnosis:
+combined with pip's own nested folders, file paths went over the 260-character Windows limit, so pip
+was installed incomplete. Creating the same environment in a short path worked immediately, which
+supports this explanation.
 
 **How I fixed it:** I created the virtual environment in a short path outside the project, and
 resolved the data file path relative to `main.py`, so the program runs from any folder. I documented
