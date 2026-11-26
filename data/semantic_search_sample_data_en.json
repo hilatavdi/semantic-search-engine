@@ -1,0 +1,302 @@
+[
+  {
+    "id": "doc_001",
+    "text": "I want to cancel my monthly subscription.",
+    "category": "Subscriptions"
+  },
+  {
+    "id": "doc_002",
+    "text": "How can I stop recurring charges for this service?",
+    "category": "Subscriptions"
+  },
+  {
+    "id": "doc_003",
+    "text": "I would like to upgrade to the premium subscription plan.",
+    "category": "Subscriptions"
+  },
+  {
+    "id": "doc_004",
+    "text": "Can I switch to a cheaper plan?",
+    "category": "Subscriptions"
+  },
+  {
+    "id": "doc_005",
+    "text": "My subscription renewed even though I asked to end it.",
+    "category": "Subscriptions"
+  },
+  {
+    "id": "doc_006",
+    "text": "I want to pause my membership for two months.",
+    "category": "Subscriptions"
+  },
+  {
+    "id": "doc_007",
+    "text": "How do I reactivate an expired subscription?",
+    "category": "Subscriptions"
+  },
+  {
+    "id": "doc_008",
+    "text": "Can I transfer my subscription to another account?",
+    "category": "Subscriptions"
+  },
+  {
+    "id": "doc_009",
+    "text": "I forgot my account password.",
+    "category": "Accounts"
+  },
+  {
+    "id": "doc_010",
+    "text": "I cannot sign in even though my password is correct.",
+    "category": "Accounts"
+  },
+  {
+    "id": "doc_011",
+    "text": "How do I change the email address linked to my account?",
+    "category": "Accounts"
+  },
+  {
+    "id": "doc_012",
+    "text": "I want to permanently delete my user account.",
+    "category": "Accounts"
+  },
+  {
+    "id": "doc_013",
+    "text": "How can I create a new account?",
+    "category": "Accounts"
+  },
+  {
+    "id": "doc_014",
+    "text": "My account was locked after several login attempts.",
+    "category": "Accounts"
+  },
+  {
+    "id": "doc_015",
+    "text": "I want to enable two-factor authentication.",
+    "category": "Accounts"
+  },
+  {
+    "id": "doc_016",
+    "text": "How can I turn off two-factor authentication?",
+    "category": "Accounts"
+  },
+  {
+    "id": "doc_017",
+    "text": "I ordered an item, but it has not arrived yet.",
+    "category": "Shipping"
+  },
+  {
+    "id": "doc_018",
+    "text": "Where can I track my package?",
+    "category": "Shipping"
+  },
+  {
+    "id": "doc_019",
+    "text": "I need to change the shipping address.",
+    "category": "Shipping"
+  },
+  {
+    "id": "doc_020",
+    "text": "Can I cancel a shipment before it is dispatched?",
+    "category": "Shipping"
+  },
+  {
+    "id": "doc_021",
+    "text": "My package was delivered to the wrong address.",
+    "category": "Shipping"
+  },
+  {
+    "id": "doc_022",
+    "text": "I need express delivery by tomorrow.",
+    "category": "Shipping"
+  },
+  {
+    "id": "doc_023",
+    "text": "Can I pick up my order instead of having it shipped?",
+    "category": "Shipping"
+  },
+  {
+    "id": "doc_024",
+    "text": "The tracking status says delivered, but I received nothing.",
+    "category": "Shipping"
+  },
+  {
+    "id": "doc_025",
+    "text": "I want to return a product I bought yesterday.",
+    "category": "Returns"
+  },
+  {
+    "id": "doc_026",
+    "text": "How can I get my money back for a purchase?",
+    "category": "Returns"
+  },
+  {
+    "id": "doc_027",
+    "text": "I would like to exchange this item for a different size.",
+    "category": "Returns"
+  },
+  {
+    "id": "doc_028",
+    "text": "The item arrived damaged, and I need a replacement.",
+    "category": "Returns"
+  },
+  {
+    "id": "doc_029",
+    "text": "What is the return policy for opened packages?",
+    "category": "Returns"
+  },
+  {
+    "id": "doc_030",
+    "text": "I would prefer store credit instead of a refund.",
+    "category": "Returns"
+  },
+  {
+    "id": "doc_031",
+    "text": "I sent the item back but have not received my refund.",
+    "category": "Returns"
+  },
+  {
+    "id": "doc_032",
+    "text": "Can I withdraw a return request I already submitted?",
+    "category": "Returns"
+  },
+  {
+    "id": "doc_033",
+    "text": "My credit card payment was declined.",
+    "category": "Payments"
+  },
+  {
+    "id": "doc_034",
+    "text": "I was charged twice for the same order.",
+    "category": "Payments"
+  },
+  {
+    "id": "doc_035",
+    "text": "How can I update my credit card details?",
+    "category": "Payments"
+  },
+  {
+    "id": "doc_036",
+    "text": "Can I pay by bank transfer?",
+    "category": "Payments"
+  },
+  {
+    "id": "doc_037",
+    "text": "I need an invoice for my latest purchase.",
+    "category": "Payments"
+  },
+  {
+    "id": "doc_038",
+    "text": "Is it possible to split the cost into monthly installments?",
+    "category": "Payments"
+  },
+  {
+    "id": "doc_039",
+    "text": "I want to remove my saved payment method.",
+    "category": "Payments"
+  },
+  {
+    "id": "doc_040",
+    "text": "Why is there a charge I do not recognize?",
+    "category": "Payments"
+  },
+  {
+    "id": "doc_041",
+    "text": "The app crashes immediately after I open it.",
+    "category": "Technical Support"
+  },
+  {
+    "id": "doc_042",
+    "text": "The website loads very slowly in the evening.",
+    "category": "Technical Support"
+  },
+  {
+    "id": "doc_043",
+    "text": "I am not receiving notifications on my phone.",
+    "category": "Technical Support"
+  },
+  {
+    "id": "doc_044",
+    "text": "How do I enable alerts for new orders?",
+    "category": "Technical Support"
+  },
+  {
+    "id": "doc_045",
+    "text": "The screen goes blank after I log in.",
+    "category": "Technical Support"
+  },
+  {
+    "id": "doc_046",
+    "text": "I want to change the interface language to English.",
+    "category": "Technical Support"
+  },
+  {
+    "id": "doc_047",
+    "text": "The app displays an error when I upload a photo.",
+    "category": "Technical Support"
+  },
+  {
+    "id": "doc_048",
+    "text": "How can I update the app to the latest version?",
+    "category": "Technical Support"
+  },
+  {
+    "id": "doc_049",
+    "text": "I am looking for a quiet restaurant for a romantic dinner.",
+    "category": "Leisure"
+  },
+  {
+    "id": "doc_050",
+    "text": "Where can I find a cafe suitable for working on a laptop?",
+    "category": "Leisure"
+  },
+  {
+    "id": "doc_051",
+    "text": "I want to book tickets for a concert on Friday.",
+    "category": "Leisure"
+  },
+  {
+    "id": "doc_052",
+    "text": "How can I cancel concert tickets I already booked?",
+    "category": "Leisure"
+  },
+  {
+    "id": "doc_053",
+    "text": "I am looking for a short hiking trail suitable for children.",
+    "category": "Leisure"
+  },
+  {
+    "id": "doc_054",
+    "text": "I would prefer an indoor activity because it is raining.",
+    "category": "Leisure"
+  },
+  {
+    "id": "doc_055",
+    "text": "I want to learn Python from scratch.",
+    "category": "Learning"
+  },
+  {
+    "id": "doc_056",
+    "text": "Is there an advanced Python course for data analysis?",
+    "category": "Learning"
+  },
+  {
+    "id": "doc_057",
+    "text": "I am looking for a simple explanation of machine learning.",
+    "category": "Learning"
+  },
+  {
+    "id": "doc_058",
+    "text": "What is the difference between semantic search and keyword search?",
+    "category": "Learning"
+  },
+  {
+    "id": "doc_059",
+    "text": "How can I check whether a language model gives reliable answers?",
+    "category": "Learning"
+  },
+  {
+    "id": "doc_060",
+    "text": "I want to stop receiving course recommendations.",
+    "category": "Learning"
+  }
+]

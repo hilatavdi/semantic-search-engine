@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.env
+
+# Not part of the submission (kept locally)
+Home_Assignment.pdf
+/semantic_search_sample_data_en.json
