@@ -51,6 +51,11 @@ length of the vector does not matter.
 
 ### 4. Semantic search vs. keyword search
 
+Keyword search checks for a direct match of words. It is very precise for specific terms, codes or
+specific actions, but it misses synonyms and context. Semantic search, on the other hand, understands
+context and synonyms, but it can confuse opposite intents on the same topic (like *"cancel my
+subscription"* vs. *"upgrade my subscription"*).
+
 | | Keyword search | Semantic search |
 |---|---|---|
 | Matches | the same **words** | the same **meaning** |
@@ -63,7 +68,7 @@ length of the vector does not matter.
 
 **In my project:** I implemented a basic keyword search (`semantic_search/keyword_search.py`) and ran
 the same queries through both (Part C). Semantic search was clearly better when users phrase things
-differently from the documents. Keyword search had one real advantage: it keeps exact action words like
+differently from the documents. Keyword search was better at keeping exact action words like
 *"turn off"*, which the embedding gives little weight to.
 
 ### How the concepts connect
