@@ -1,8 +1,8 @@
 # Semantic Search Engine
 
 A command-line search engine that finds short texts by **meaning**, not just by matching words. It
-also includes a keyword-search baseline for comparison, a cross-encoder reranking step that improves
-relevance, and experiments that analyse where embeddings succeed and fail.
+also includes a keyword-search baseline for comparison, a cross-encoder reranking step that partly
+improves relevance, and experiments that analyse where embeddings succeed and fail.
 
 - **Embedding model:** [`sentence-transformers/all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2), run locally
 - **Reranker (Part D):** [`cross-encoder/ms-marco-MiniLM-L-12-v2`](https://huggingface.co/cross-encoder/ms-marco-MiniLM-L-12-v2), run locally
@@ -43,7 +43,9 @@ pip install -r requirements.txt
 ```
 
 The first run downloads the models from Hugging Face (about 90 MB for the embedding model and about
-130 MB for the reranker). After that they are cached locally, and the program works offline.
+130 MB for the reranker). After that they are cached locally. To run without an internet connection,
+set the environment variable `HF_HUB_OFFLINE=1` so the library uses the cache without contacting
+Hugging Face.
 
 > **Windows note:** if creating the virtual environment fails with
 > `ModuleNotFoundError: No module named 'pip._internal.utils'`, the project path is probably too long
@@ -77,6 +79,9 @@ optional):
 The provided dataset (60 customer-support style texts in 8 categories) is in `data/`.
 
 ## Sample inputs and outputs
+
+Real output from the program. The startup lines (`Loaded 60 documents ...`, `Indexed ...`) are
+omitted.
 
 **Semantic search: different words, same meaning.** None of the top results contain *parcel*,
 *never* or *showed up*:
@@ -303,8 +308,8 @@ this in [Setup](#setup).
 assignment brief. It fixed *cancel vs. reactivate*, but not *upgrade vs. cancel*.
 
 **How I addressed it:**
-- Instead of only showing the cases that worked, I evaluated 8 queries with relevance labels decided
-  in advance, and reported improvements, no-changes and a regression.
+- Instead of only showing the cases that worked, I evaluated 8 queries with relevance labels written
+  down in the script, and reported improvements, no-changes and a regression.
 - Part E then explained *why*. On minimal pairs, both models score opposite intents higher than
   paraphrases, because they respond to shared topic and wording more than to the action.
 

@@ -58,7 +58,7 @@ arrived / received nothing*, and returns the three best answers in its top 3.
 | | 5. doc_013 (0.333) How can I create a new account? |
 
 Keyword search can only match the generic word **"account"**, so all five results get the
-same score (0.333) and are ordered arbitrarily by dataset order. It misses the two best answers:
+same score (0.333). Their order only reflects their position in the dataset, not relevance. It misses the two best answers:
 - doc_010 says *"cannot sign in"*: different words for *"can't log in"*.
 - doc_014 says *"login"*: a different word form from *"log"*, and there is no stemming.
 
@@ -112,7 +112,7 @@ its #1 result shares the action *"turn off"*.
 
 The user wants to *end* (cancel) the plan, but semantic search ranks *"switch to a cheaper plan"*
 first. That document shares the word *plan* and the subscription topic, but its intent is to *keep*
-the service. The correct answer (doc_001) is only #3 and comes after a result about concert tickets. Note that the
+the service. The first relevant answer (doc_001) is only #3 and comes after a result about concert tickets. Note that the
 scores are low (0.41 at most): the query is short and uses a different word (*plan* vs. *subscription*)
 than the right answer.
 
@@ -141,4 +141,5 @@ pause, or reactivate.
    for an irrelevant result in query 6, while 0.48 was a relevant result in query 1.
 5. **The two methods fail differently,** which suggests that combining them (hybrid search) could
    help. For example, keyword search kept the action words *"turn off"* that semantic search
-   under-weighted.
+   under-weighted. (Part D tried a simple hybrid score: it barely helped with intent, so I chose
+   reranking instead. See `part_d_analysis.md`.)
