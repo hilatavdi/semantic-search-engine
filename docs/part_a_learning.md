@@ -4,7 +4,10 @@
 
 ### 1. Semantic search
 
-Semantic search finds documents by **meaning**:
+Search that focuses on the **meaning** behind the text rather than on exact word matching. This makes
+it possible to find relevant results even when the user uses synonyms or completely different wording.
+
+How it works:
 1. Embed all the documents (once).
 2. Embed the user's query with the same model.
 3. Compute the similarity between the query and every document.
