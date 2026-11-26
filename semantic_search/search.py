@@ -42,7 +42,7 @@ class SemanticSearchEngine:
         # Drop invisible characters (BOM, zero-width spaces) that str.strip() keeps.
         query = query.translate(_INVISIBLE).strip()
         if not query:
-            raise InvalidQueryError("Query is empty — please type something to search for")
+            raise InvalidQueryError("Query is empty - please type something to search for")
         if len(query) > MAX_QUERY_CHARS:
             raise InvalidQueryError(f"Query is too long ({len(query)} chars, max {MAX_QUERY_CHARS})")
         return query

@@ -1,4 +1,4 @@
-"""Pure similarity + ranking logic (numpy only, no model) — easy to unit-test."""
+"""Pure similarity + ranking logic (numpy only, no model) - easy to unit-test."""
 from __future__ import annotations
 
 import numpy as np
