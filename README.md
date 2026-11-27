@@ -132,6 +132,6 @@ where it didn't help or got slightly worse, too. The sentence-pair experiment (P
 why: both models react to shared topic and wording more than to the requested action.
 
 **With more time I would:**
-- build a larger labelled query set and use standard metrics (MRR, nDCG)
+- build a larger labelled query set and use standard ranking metrics such as MRR
 - try fine-tuning with *cancel* / *upgrade* style pairs, or an LLM judge on the top results
 - return "no good match" when even the best score is low
